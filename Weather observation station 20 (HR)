@@ -1,0 +1,30 @@
+Q) A MEDIAN is defined as a number separating the higher half of a data set from the lower half. Query the MEDIAN of the Northern Latitudes (LAT_N) from STATION and round your answer to  decimal places.
+                                                                          
+SELECT CAST((
+(
+    SELECT TOP 1 LAT_N FROM (SELECT TOP 50 PERCENT LAT_N
+    FROM STATION
+    WHERE LAT_N IS NOT NULL
+    ORDER BY LAT_N  ASC) FIRSTHALF  
+ORDER BY LAT_N DESC
+)
++
+(
+    SELECT TOP 1 LAT_N FROM (SELECT TOP 50 PERCENT LAT_N
+    FROM STATION
+    WHERE LAT_N IS NOT NULL
+    ORDER BY LAT_N  DESC) SECONDHALF
+ORDER BY LAT_N ASC
+)
+)/2 AS DECIMAL(8,4))
+
+>>>> EXPLAINATION !!!
+eg = {1,2,3,4,5,6,7,8}
+1sthalf = {1,2,3,4}
+2ndhalf = {8,7,6,5}
+In order to find median we take highest value from 1st half & lowest value from 2nd half
+median = (4+5)/2 = 4.5
+
+cast is used instead of round as sql server rounds the function but doesnt reduce the digits.
+
+Ref: https://www.sqlservercentral.com/articles/mean-median-mode-using-sql-and-dax
