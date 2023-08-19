@@ -1,0 +1,121 @@
+Q) You are given a table, Projects, containing three columns: Task_ID, Start_Date and End_Date. It is guaranteed that the difference between the End_Date and the Start_Date is equal to 1 day for each row in the table.
+
+If the End_Date of the tasks are consecutive, then they are part of the same project. Samantha is interested in finding the total number of different projects completed.
+Write a query to output the start and end dates of projects listed by the number of days it took to complete the project in ascending order. If there is more than one project that have the same number of completion days, then order by the start date of the project.
+
+Sample Input
+Task_id    start_date    end_date
+1          2015-10-01    2015-10-02
+2          2015-10-02    2015-10-03
+3          2015-10-03    2015-10-04
+4          2015-10-13    2015-10-14
+5          2015-10-14    2015-10-15
+6          2015-10-28    2015-10-29
+7          2015-10-30    2015-10-31
+
+
+
+
+Sample Output
+
+2015-10-28 2015-10-29
+2015-10-30 2015-10-31
+2015-10-13 2015-10-15
+2015-10-01 2015-10-04
+
+
+Explanation
+
+The example describes following four projects:
+
+Project 1: Tasks 1, 2 and 3 are completed on consecutive days, so these are part of the project. Thus start date of project is 2015-10-01 and end date is 2015-10-04, so it took 3 days to complete the project.
+Project 2: Tasks 4 and 5 are completed on consecutive days, so these are part of the project. Thus, the start date of project is 2015-10-13 and end date is 2015-10-15, so it took 2 days to complete the project.
+Project 3: Only task 6 is part of the project. Thus, the start date of project is 2015-10-28 and end date is 2015-10-29, so it took 1 day to complete the project.
+Project 4: Only task 7 is part of the project. Thus, the start date of project is 2015-10-30 and end date is 2015-10-31, so it took 1 day to complete the project.
+
+
+---------------------------------------------
+                SOLUTION
+---------------------------------------------
+
+
+WITH START_DATE_CTE AS (
+        SELECT P1.START_DATE, 
+        ROW_NUMBER() OVER (ORDER BY P1.START_DATE) AS R1
+        FROM PROJECTS P1 
+        LEFT JOIN PROJECTS P2 ON P1.START_DATE = P2.END_DATE
+        WHERE P2.END_DATE IS NULL
+                        ),
+    END_DATE_CTE AS (
+        SELECT P2.END_DATE,
+        ROW_NUMBER() OVER (ORDER BY P2.END_DATE) AS R2
+        FROM PROJECTS P1 
+        RIGHT JOIN PROJECTS P2 ON P1.START_DATE = P2.END_DATE
+        WHERE P1.START_DATE IS NULL
+                    )
+SELECT START_DATE, END_DATE 
+FROM START_DATE_CTE 
+JOIN END_DATE_CTE ON START_DATE_CTE.R1 = END_DATE_CTE.R2
+ORDER BY DATEDIFF(END_DATE,START_DATE),START_DATE;
+
+
+===============================
+EXPLAINATION 
+===============================
+
+LEFT JOIN
+1 2015-10-01 2015-10-02 NULL NULL NULL
+24 2015-10-02 2015-10-03 1 2015-10-01 2015-10-02
+2 2015-10-03 2015-10-04 24 2015-10-02 2015-10-03
+23 2015-10-04 2015-10-05 2 2015-10-03 2015-10-04
+3 2015-10-11 2015-10-12 NULL NULL NULL
+22 2015-10-12 2015-10-13 3 2015-10-11 2015-10-12
+4 2015-10-15 2015-10-16 NULL NULL NULL
+21 2015-10-17 2015-10-18 NULL NULL NULL
+5 2015-10-19 2015-10-20 NULL NULL NULL
+20 2015-10-21 2015-10-22 NULL NULL NULL
+6 2015-10-25 2015-10-26 NULL NULL NULL
+19 2015-10-26 2015-10-27 6 2015-10-25 2015-10-26
+7 2015-10-27 2015-10-28 19 2015-10-26 2015-10-27
+18 2015-10-28 2015-10-29 7 2015-10-27 2015-10-28
+8 2015-10-29 2015-10-30 18 2015-10-28 2015-10-29
+17 2015-10-30 2015-10-31 8 2015-10-29 2015-10-30
+9 2015-11-01 2015-11-02 NULL NULL NULL
+16 2015-11-04 2015-11-05 NULL NULL NULL
+10 2015-11-07 2015-11-08 15 2015-11-06 2015-11-07
+15 2015-11-06 2015-11-07 11 2015-11-05 2015-11-06
+11 2015-11-05 2015-11-06 16 2015-11-04 2015-11-05
+14 2015-11-11 2015-11-12 NULL NULL NULL
+12 2015-11-12 2015-11-13 14 2015-11-11 2015-11-12
+13 2015-11-17 2015-11-18 NULL NULL NULL
+
+ONLY TAKING NULL VALUES GIVE THE START DATE.
+SIMILARY RIGHT JOIN FOR END DATE.
+
+1 2015-10-01 2015-10-02 NULL NULL NULL
+3 2015-10-11 2015-10-12 NULL NULL NULL
+4 2015-10-15 2015-10-16 NULL NULL NULL
+21 2015-10-17 2015-10-18 NULL NULL NULL
+5 2015-10-19 2015-10-20 NULL NULL NULL
+20 2015-10-21 2015-10-22 NULL NULL NULL
+6 2015-10-25 2015-10-26 NULL NULL NULL
+9 2015-11-01 2015-11-02 NULL NULL NULL
+16 2015-11-04 2015-11-05 NULL NULL NULL
+14 2015-11-11 2015-11-12 NULL NULL NULL
+13 2015-11-17 2015-11-18 NULL NULL NULL
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
