@@ -1,0 +1,46 @@
+A phone call is considered an international call when the person calling is in a different country than the person receiving the call.
+
+What percentage of phone calls are international? Round the result to 1 decimal.
+
+phone_calls Example Input:
+caller_id  	receiver_id	    call_time
+1	            2	        2022-07-04 10:13:49
+1	            5	        2022-08-21 23:54:56
+5	            1	        2022-05-13 17:24:06
+5             6	        2022-03-18 12:11:49
+
+phone_info Example Input:
+caller_id	country_id	   network	    phone_number
+1	            US	      Verizon	    +1-212-897-1964
+2	            US	      Verizon	    +1-703-346-9529
+3	            US	      Verizon	    +1-650-828-4774
+4	            US	      Verizon	    +1-415-224-6663
+5	            IN	      Vodafone	  +91 7503-907302
+6	            IN	      Vodafone	  +91 2287-664895
+
+
+Example Output:
+international_calls_pct
+50.0
+
+================================================
+              SOLUTION
+================================================
+
+WITH caller_info AS (SELECT c.caller_id, c.receiver_id, i.country_id as caller_country
+FROM phone_calls c 
+JOIN phone_info i
+ON c.caller_id = i.caller_id),
+
+receiver_info AS (SELECT c.caller_id, c.receiver_id, i.country_id as receiver_country
+FROM phone_calls c 
+JOIN phone_info i
+ON c.receiver_id = i.caller_id)
+
+SELECT ROUND((COUNT(*)*1.0/(SELECT COUNT(*) FROM phone_calls)*100),1)
+FROM caller_info a
+JOIN receiver_info b
+ON a.caller_id = b.caller_id AND a.receiver_id = b.receiver_id
+WHERE caller_country != receiver_country
+
+
