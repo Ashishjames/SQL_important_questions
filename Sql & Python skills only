@@ -1,0 +1,75 @@
+-- Q) To find students with only sql & python skillls
+
+---------------------
+        Table
+--------------------
+student_id   skill
+  1	          sql
+  1	          python
+  1	          tableau
+  2	          sql
+  3    	      sql
+  3	          python
+  4	          tableau
+  5	          python
+  5	          tableau
+
+----------------------
+        OUTPUT
+----------------------
+3
+
+------------------------
+        SOLUTION
+------------------------
+
+/* create table students  (
+student_id int,
+skill varchar(20)
+);
+-- delete from students;
+insert into students values
+(1,'sql'),(1,'python'),(1,'tableau'),(2,'sql'),(3,'sql'),(3,'python'),(4,'tableau'),(5,'python'),(5,'tableau');
+*/
+
+select * from students ; 
+
+/* with cte as (
+select student_id,
+sum(case when skill = 'sql' then 1 else 0 end) as SQL,
+sum(case when skill = 'python' then 1 else 0 end) as python,
+sum(case when skill = 'tableau' then 1 else 0 end) as tableau
+from students
+group by student_id)
+
+select *
+from cte
+where python = 1 and SQL = 1 and tableau = 0;
+*/
+
+/*select student_id, count(skill), COUNT(case when skill in ('sql', 'python') then skill else null end) as sk_col
+from students
+group by student_id
+*/
+
+/*select student_id, count(skill), Sum(case when skill in ('sql', 'python') then 1 else 0 end) as sk_col
+from students
+group by student_id
+*/
+
+/*select student_id
+from students
+where student_id not in (select student_id from students where skill not in ('sql','python'))
+group by student_id 
+having count(skill) = 2
+*/
+
+
+select student_id
+from students
+group by student_id 
+having count(skill) = 2
+except
+select student_id 
+from students
+where skill not in ('sql','python')
